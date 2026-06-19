@@ -1,0 +1,674 @@
+/* ============================================
+   style.css - Diseño Barbería Profesional
+   ============================================ */
+
+/* ===== VARIABLES ===== */
+:root {
+    --primary: #2c1810;
+    --primary-light: #4a2a1a;
+    --secondary: #c9a84c;
+    --secondary-light: #e8d5a3;
+    --background: #f8f5f0;
+    --text: #2c1810;
+    --text-light: #6b5a4a;
+    --white: #ffffff;
+    --shadow: 0 8px 32px rgba(44, 24, 16, 0.15);
+    --border-radius: 16px;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===== RESET ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--background);
+    background-image: 
+        radial-gradient(ellipse at 10% 20%, rgba(201, 168, 76, 0.05) 0%, transparent 50%),
+        radial-gradient(ellipse at 90% 80%, rgba(44, 24, 16, 0.05) 0%, transparent 50%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    color: var(--text);
+}
+
+/* ===== CONTAINER ===== */
+.container {
+    background: var(--white);
+    border-radius: var(--border-radius);
+    padding: 40px;
+    max-width: 650px;
+    width: 100%;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+}
+
+/* ===== DECORACIÓN ===== */
+.container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--secondary), var(--primary), var(--secondary));
+    background-size: 200% 100%;
+    animation: shimmer 3s linear infinite;
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+/* ===== HEADER ===== */
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+    position: relative;
+}
+
+.header-logo {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 15px;
+    color: var(--secondary);
+}
+
+.header-logo svg {
+    width: 100%;
+    height: 100%;
+}
+
+h1 {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--primary);
+    letter-spacing: -0.5px;
+}
+
+h1 .highlight {
+    color: var(--secondary);
+}
+
+.subtitle {
+    color: var(--text-light);
+    font-size: 15px;
+    margin-top: 4px;
+    font-weight: 400;
+}
+
+/* ===== TABS ===== */
+.tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 30px;
+    background: var(--background);
+    border-radius: 12px;
+    padding: 4px;
+}
+
+.tab {
+    flex: 1;
+    padding: 12px 16px;
+    border: none;
+    background: transparent;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text-light);
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: inherit;
+}
+
+.tab .icon-svg {
+    width: 18px;
+    height: 18px;
+}
+
+.tab:hover {
+    background: rgba(44, 24, 16, 0.05);
+    color: var(--primary);
+}
+
+.tab.active {
+    background: var(--white);
+    color: var(--primary);
+    box-shadow: 0 2px 12px rgba(44, 24, 16, 0.08);
+}
+
+/* ===== TAB CONTENT ===== */
+.tab-content {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== FORMULARIOS ===== */
+label {
+    display: block;
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: 8px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+label .icon-svg {
+    width: 18px;
+    height: 18px;
+}
+
+input[type="date"],
+input[type="text"] {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #e8e0d8;
+    border-radius: 12px;
+    font-size: 16px;
+    font-family: inherit;
+    transition: var(--transition);
+    margin-bottom: 20px;
+    background: var(--white);
+    color: var(--text);
+}
+
+input[type="date"]:focus,
+input[type="text"]:focus {
+    outline: none;
+    border-color: var(--secondary);
+    box-shadow: 0 0 0 4px rgba(201, 168, 76, 0.15);
+}
+
+input[type="date"]:hover,
+input[type="text"]:hover {
+    border-color: var(--secondary-light);
+}
+
+/* ===== GRID DE HORAS ===== */
+.horas-container {
+    margin-bottom: 20px;
+    min-height: 120px;
+}
+
+.horas-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+    margin: 15px 0;
+}
+
+/* ===== BOTONES DE HORA ===== */
+.hora-btn {
+    background: var(--background);
+    border: 2px solid #e8e0d8;
+    border-radius: 12px;
+    padding: 14px 8px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--text);
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+    user-select: none;
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hora-btn:hover:not(.seleccionada):not(:disabled) {
+    background: #f0ebe5;
+    border-color: var(--secondary-light);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(44, 24, 16, 0.08);
+}
+
+.hora-btn.seleccionada {
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    border-color: var(--secondary);
+    color: var(--white);
+    transform: scale(1.05);
+    box-shadow: 0 4px 20px rgba(44, 24, 16, 0.25);
+}
+
+.hora-btn.seleccionada::after {
+    content: '✓';
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: var(--secondary);
+    color: var(--white);
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(201, 168, 76, 0.4);
+    animation: popIn 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes popIn {
+    0% { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.hora-btn:disabled {
+    background: #f5f0eb;
+    border-color: #e0d8d0;
+    color: #b0a090;
+    cursor: not-allowed;
+    opacity: 0.6;
+    transform: none !important;
+}
+
+.hora-btn:disabled:hover {
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* ===== FECHA INFO ===== */
+.fecha-info {
+    text-align: center;
+    padding: 10px;
+    background: var(--background);
+    border-radius: 10px;
+    color: var(--text-light);
+    font-size: 14px;
+    font-weight: 600;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.fecha-info .icon-svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* ===== BOTÓN RESERVAR ===== */
+.btn-reservar {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 16px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: var(--transition);
+    background: linear-gradient(135deg, var(--secondary), #b8953a);
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.btn-reservar .icon-svg {
+    width: 20px;
+    height: 20px;
+}
+
+.btn-reservar:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(201, 168, 76, 0.4);
+}
+
+.btn-reservar:active:not(:disabled) {
+    transform: scale(0.98);
+}
+
+.btn-reservar:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.btn-reservar:disabled:hover {
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* ===== BOTÓN CANCELAR ===== */
+.btn-danger {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 16px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: var(--transition);
+    background: #e74c3c;
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.btn-danger .icon-svg {
+    width: 20px;
+    height: 20px;
+}
+
+.btn-danger:hover:not(:disabled) {
+    background: #c0392b;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(231, 76, 60, 0.35);
+}
+
+.btn-danger:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+/* ===== BOTÓN COPIAR ===== */
+.btn-copiar {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 14px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: var(--transition);
+    background: var(--primary);
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.btn-copiar .icon-svg {
+    width: 18px;
+    height: 18px;
+}
+
+.btn-copiar:hover {
+    background: var(--primary-light);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(44, 24, 16, 0.25);
+}
+
+/* ===== MENSAJES ===== */
+.mensaje {
+    display: none;
+    padding: 14px 18px;
+    border-radius: 12px;
+    margin-top: 15px;
+    font-weight: 500;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.mensaje .icon-svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.mensaje.success {
+    background: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #c8e6c9;
+}
+
+.mensaje.warning {
+    background: #fff8e1;
+    color: #f57f17;
+    border: 1px solid #ffecb3;
+}
+
+.mensaje.error {
+    background: #fbe9e7;
+    color: #c62828;
+    border: 1px solid #ffcdd2;
+}
+
+.mensaje.info {
+    background: #e3f2fd;
+    color: #0d47a1;
+    border: 1px solid #bbdefb;
+}
+
+/* ===== CÓDIGO ===== */
+.codigo-display {
+    background: var(--background);
+    border: 2px dashed var(--secondary);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: 10px;
+    color: var(--primary);
+    margin: 15px 0;
+    font-family: 'Courier New', monospace;
+}
+
+/* ===== LOADING ===== */
+.loading-spinner {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--text-light);
+    font-size: 15px;
+}
+
+.loading-spinner::before {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 40px;
+    margin: 0 auto 12px;
+    border: 3px solid var(--background);
+    border-top-color: var(--secondary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ===== NO HOURS ===== */
+.no-hours {
+    text-align: center;
+    padding: 35px 20px;
+    background: var(--background);
+    border-radius: 12px;
+    color: var(--text-light);
+}
+
+.no-hours .icon-svg {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 12px;
+    opacity: 0.5;
+}
+
+.no-hours p {
+    margin: 4px 0;
+}
+
+.no-hours .small {
+    font-size: 13px;
+    opacity: 0.7;
+}
+
+/* ===== DIVIDER ===== */
+.divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #e8e0d8, transparent);
+    margin: 20px 0;
+}
+
+/* ===== INFO TEXT ===== */
+.info-text {
+    color: var(--text-light);
+    font-size: 14px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.info-text .icon-svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 640px) {
+    .container {
+        padding: 24px;
+        border-radius: 12px;
+    }
+    
+    .horas-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+    }
+    
+    .hora-btn {
+        padding: 12px 6px;
+        font-size: 13px;
+        min-height: 44px;
+    }
+    
+    h1 {
+        font-size: 22px;
+    }
+    
+    .header-logo {
+        width: 60px;
+        height: 60px;
+    }
+}
+
+@media (max-width: 400px) {
+    .horas-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .tabs {
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .tab {
+        padding: 10px;
+    }
+}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--background);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--secondary);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
+}
+
+
+/* ===== ESTILOS PARA ICONOS SVG ===== */
+.icon-svg {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+    flex-shrink: 0;
+    line-height: 1;
+}
+
+.icon-svg svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* Animación para icono de carga */
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Estilos para iconos en botones */
+.btn-reservar .icon-svg,
+.btn-danger .icon-svg,
+.btn-copiar .icon-svg {
+    margin-right: 8px;
+}
+
+/* Estilos para iconos en labels */
+label .icon-svg {
+    margin-right: 6px;
+}
+
+/* Estilos para iconos en tabs */
+.tab .icon-svg {
+    margin-right: 6px;
+}
+
+/* Estilos para iconos en mensajes */
+.mensaje .icon-svg {
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+
+/* Estilos para iconos en info */
+.info-text .icon-svg {
+    margin-right: 8px;
+}
+
+/* Estilos para iconos en el área de código */
+#areaCodigo p .icon-svg {
+    margin-right: 6px;
+}
