@@ -1,5 +1,5 @@
 // ============================================
-// app.js - Lógica principal (VERSIÓN CORREGIDA)
+// app.js - Lógica principal
 // ============================================
 
 import { 
@@ -14,17 +14,14 @@ import {
     limpiarHoras, 
     mostrarMensaje, 
     mostrarCodigo,
-    copiarCodigo,  // ✅ Importar desde ui.js
+    copiarCodigo,
     configurarFechaMinima,
     seleccionarHoraUI
 } from './ui.js';
 
 import { ICONS_SVG } from './icons.js';
 
-// ============================================
-// VARIABLES GLOBALES
-// ============================================
-
+// Variables globales
 let horaSeleccionada = null;
 let fechaSeleccionada = null;
 let fechaFormateada = null;
@@ -43,23 +40,35 @@ export async function cargarHorasDisponiblesHoy() {
         container.innerHTML = '<div class="loading-spinner">⏳ Cargando horas disponibles...</div>';
         
         const response = await obtenerHorasDisponiblesHoy();
-        console.log('📥 Respuesta:', response);
+        console.log('📥 Respuesta completa:', response);
         
-        if (response.success && response.data?.available) {
+        if (response.success && response.data) {
+            const data = response.data;
+            
             const fechaInput = document.getElementById('fechaInput');
             if (fechaInput) {
-                fechaInput.value = response.data.date;
+                fechaInput.value = data.date;
             }
             
-            fechaSeleccionada = response.data.date;
-            fechaFormateada = response.data.dateFormatted || null;
+            fechaSeleccionada = data.date;
+            fechaFormateada = data.dateFormatted || null;
             
-            mostrarHoras(response.data.available, fechaFormateada);
+            // Pasar TODO el data a mostrarHoras
+            mostrarHoras(data);
             
             horaSeleccionada = null;
             document.getElementById('btnReservar').disabled = true;
             
-            mostrarMensaje('reservar', '✅ Horas disponibles cargadas correctamente', 'success');
+            if (data.bloqueado) {
+                mostrarMensaje('reservar', `📅 ${data.motivo || 'Día cerrado'}`, 'warning');
+            } else if (data.available && data.available.length > 0) {
+                const msg = data.horario?.texto 
+                    ? `✅ Horas disponibles (${data.horario.texto})` 
+                    : '✅ Horas disponibles cargadas correctamente';
+                mostrarMensaje('reservar', msg, 'success');
+            } else {
+                mostrarMensaje('reservar', '⚠️ No hay horas disponibles para hoy', 'warning');
+            }
         } else {
             container.innerHTML = `
                 <div class="no-hours">
@@ -94,13 +103,23 @@ async function cargarHorasPorFecha(fecha) {
         const response = await obtenerHorasDisponibles(fecha);
         console.log(`📥 Horas para ${fecha}:`, response);
         
-        if (response.success && response.data?.available) {
+        if (response.success && response.data) {
+            const data = response.data;
+            
             fechaSeleccionada = fecha;
-            fechaFormateada = response.data.dateFormatted || null;
-            mostrarHoras(response.data.available, fechaFormateada);
+            fechaFormateada = data.dateFormatted || null;
+            
+            // Pasar TODO el data a mostrarHoras
+            mostrarHoras(data);
             
             horaSeleccionada = null;
             document.getElementById('btnReservar').disabled = true;
+            
+            if (data.bloqueado) {
+                mostrarMensaje('reservar', `📅 ${data.motivo || 'Día cerrado'}`, 'warning');
+            } else if (data.available && data.available.length === 0) {
+                mostrarMensaje('reservar', '⚠️ No hay horas disponibles para esta fecha', 'warning');
+            }
         } else {
             container.innerHTML = `
                 <div class="no-hours">
@@ -288,31 +307,23 @@ export async function handleCancelar(event) {
 window.showTab = function(tab) {
     console.log(`📋 Cambiando a tab: ${tab}`);
     
-    // Ocultar todos los tabs
     document.querySelectorAll('.tab-content').forEach(el => {
         el.classList.remove('active');
     });
     
-    // Mostrar el tab seleccionado
     const tabContent = document.getElementById(`tab-${tab}`);
     if (tabContent) {
         tabContent.classList.add('active');
-        console.log(`✅ Tab ${tab} activado`);
-    } else {
-        console.error(`❌ Tab ${tab} no encontrado`);
     }
     
-    // Actualizar botones
     document.querySelectorAll('.tab').forEach(el => {
         el.classList.remove('active');
     });
     
-    // Marcar el botón activo
     const buttons = document.querySelectorAll('.tab');
     const tabMap = { 'reservar': 0, 'cancelar': 1 };
     if (tabMap[tab] !== undefined && buttons[tabMap[tab]]) {
         buttons[tabMap[tab]].classList.add('active');
-        console.log(`✅ Botón ${tab} activado`);
     }
 };
 
@@ -325,23 +336,21 @@ export function setupTabs() {
     const tabCancelar = document.getElementById('tabCancelarBtn');
     
     if (tabReservar) {
+        tabReservar.removeAttribute('onclick');
         tabReservar.addEventListener('click', function(e) {
             e.preventDefault();
             window.showTab('reservar');
         });
         console.log('✅ Tab Reservar configurado');
-    } else {
-        console.warn('⚠️ Botón tabReservarBtn no encontrado');
     }
     
     if (tabCancelar) {
+        tabCancelar.removeAttribute('onclick');
         tabCancelar.addEventListener('click', function(e) {
             e.preventDefault();
             window.showTab('cancelar');
         });
         console.log('✅ Tab Cancelar configurado');
-    } else {
-        console.warn('⚠️ Botón tabCancelarBtn no encontrado');
     }
 }
 
@@ -352,13 +361,9 @@ export function setupTabs() {
 export function init() {
     console.log('🚀 Inicializando aplicación...');
     
-    // Configurar fecha mínima
     configurarFechaMinima();
-    
-    // Cargar horas disponibles para hoy
     cargarHorasDisponiblesHoy();
     
-    // Configurar event listeners
     const fechaInput = document.getElementById('fechaInput');
     if (fechaInput) {
         fechaInput.addEventListener('change', onFechaChange);
@@ -374,15 +379,12 @@ export function init() {
         formCancelar.addEventListener('submit', handleCancelar);
     }
     
-    // Configurar tabs
     setupTabs();
     
-    // ✅ Asignar funciones globales (copiarCodigo ya viene de ui.js)
-    window.copiarCodigo = copiarCodigo; // Usar la importada
+    window.copiarCodigo = copiarCodigo;
     window.seleccionarHora = window.seleccionarHora;
     window.showTab = window.showTab;
     
-    // Configurar botón copiar con event listener
     const btnCopiar = document.getElementById('btnCopiarCodigo');
     if (btnCopiar) {
         btnCopiar.removeAttribute('onclick');
@@ -393,7 +395,6 @@ export function init() {
         console.log('✅ Botón copiar configurado');
     }
     
-    // Asegurar que el tab de reservar esté activo
     window.showTab('reservar');
     
     console.log('✅ Aplicación inicializada correctamente');

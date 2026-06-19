@@ -2,7 +2,7 @@
 // CONFIGURACIÓN
 // ============================================
 
-const API_URL = 'https://script.google.com/macros/s/AKfycbwE5o2UR31a7u9T4Tl5OOvjYD6T5LESmMZlwF105T26llktGBg7IGMEv1gnEEjnRnQJ/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycby4itH7PvdJvswkk_fwO2H241Qj7RLsijVRn7Z5CFpCvuvWZbf4QOFWzJMUHL1i1ZBu/exec';
 
 // ============================================
 // 1. CREATE - Crear una nueva cita
@@ -10,14 +10,32 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbwE5o2UR31a7u9T4Tl5OOvj
 
 export async function crearCita(datos) {
     try {
+        console.log('📌 Enviando petición de creación...');
+        console.log('📦 Datos:', datos);
+        
         const respuesta = await fetch(`${API_URL}?action=create`, {
             method: 'POST',
             headers: { 'Content-Type': 'text/plain' },
             body: JSON.stringify(datos)
         });
-        const resultado = await respuesta.json();
+        
+        const text = await respuesta.text();
+        console.log('📥 Respuesta cruda:', text);
+        
+        let resultado;
+        try {
+            resultado = JSON.parse(text);
+        } catch (parseError) {
+            console.error('❌ Error parseando JSON:', parseError);
+            return { 
+                success: false, 
+                message: 'Error: Respuesta no válida del servidor' 
+            };
+        }
+        
         console.log('📥 Respuesta crearCita:', resultado);
         return resultado;
+        
     } catch (error) {
         console.error('❌ Error en crearCita:', error);
         return { 
@@ -33,14 +51,31 @@ export async function crearCita(datos) {
 
 export async function eliminarCita(codigo) {
     try {
+        console.log(`🗑️ Intentando cancelar cita con código: ${codigo}`);
+        
         const respuesta = await fetch(`${API_URL}?action=cancel`, {
             method: 'POST',
             headers: { 'Content-Type': 'text/plain' },
-            body: JSON.stringify({ codigo: codigo })
+            body: JSON.stringify({ codigo: codigo.trim() })
         });
-        const resultado = await respuesta.json();
+        
+        const text = await respuesta.text();
+        console.log('📥 Respuesta cruda:', text);
+        
+        let resultado;
+        try {
+            resultado = JSON.parse(text);
+        } catch (parseError) {
+            console.error('❌ Error parseando JSON:', parseError);
+            return { 
+                success: false, 
+                message: 'Error: Respuesta no válida del servidor' 
+            };
+        }
+        
         console.log('📥 Respuesta eliminarCita:', resultado);
         return resultado;
+        
     } catch (error) {
         console.error('❌ Error en eliminarCita:', error);
         return { 

@@ -30,39 +30,42 @@ export function configurarFechaMinima() {
 // 2. MOSTRAR HORAS
 // ============================================
 
-// ============================================
-// 2. MOSTRAR HORAS (ACTUALIZADO)
-// ============================================
-
-export function mostrarHoras(horas, fechaFormateada = null, bloqueado = false, motivo = '') {
+export function mostrarHoras(data) {
     const container = document.getElementById('horasContainer');
     if (!container) return;
     
-    // 🔥 VERIFICAR SI EL DÍA ESTÁ BLOQUEADO
-    if (bloqueado) {
+    // Si no hay datos o está bloqueado
+    if (!data || data.bloqueado) {
         container.innerHTML = `
-            <div class="no-hours" style="background: #fff3cd; border: 2px solid #ffc107;">
+            <div class="no-hours" style="background: #fff3cd; border: 2px solid #ffc107; border-radius: 12px; padding: 30px;">
                 <span style="font-size: 48px; display: block; margin-bottom: 12px;">📅</span>
-                <p style="color: #856404; font-weight: 700; font-size: 18px;">${motivo || 'Día no disponible'}</p>
+                <p style="color: #856404; font-weight: 700; font-size: 18px;">${data?.motivo || 'Día no disponible'}</p>
                 <p class="small" style="color: #856404;">Por favor, selecciona otro día</p>
             </div>
         `;
         return;
     }
     
-    if (!horas || horas.length === 0) {
+    const horas = data.available || [];
+    const fechaFormateada = data.dateFormatted || data.date;
+    const horarioTexto = data.horario?.texto || '';
+    
+    // Si no hay horas disponibles
+    if (horas.length === 0) {
         container.innerHTML = `
             <div class="no-hours">
                 <span class="icon-svg" style="width:48px;height:48px;margin:0 auto 12px;display:block;opacity:0.5">
                     ${ICONS_SVG.clock || ''}
                 </span>
                 <p>No hay horas disponibles</p>
+                ${horarioTexto ? `<p class="small">Horario: ${horarioTexto}</p>` : ''}
                 <p class="small">Intenta con otra fecha</p>
             </div>
         `;
         return;
     }
     
+    // Construir grid de horas
     let html = `<div class="horas-grid">`;
     
     horas.forEach(hora => {
@@ -81,11 +84,22 @@ export function mostrarHoras(horas, fechaFormateada = null, bloqueado = false, m
     
     html += `</div>`;
     
+    // Información de la fecha
     if (fechaFormateada) {
         html += `
             <div class="fecha-info">
                 <span class="icon-svg" style="width:18px;height:18px;">${ICONS_SVG.calendar || ''}</span>
                 ${fechaFormateada}
+            </div>
+        `;
+    }
+    
+    // Mostrar horario del día (desde el backend)
+    if (horarioTexto) {
+        html += `
+            <div class="horario-info">
+                <span>🕐</span>
+                <span><strong>Horario de atención:</strong> ${horarioTexto}</span>
             </div>
         `;
     }
@@ -190,21 +204,18 @@ export async function copiarCodigo() {
     
     const codigo = codigoGenerado.textContent;
     
-    // Verificar que el código no sea "XXXXXX"
     if (!codigo || codigo === 'XXXXXX') {
         mostrarMensaje('reservar', '⚠️ No hay código para copiar', 'warning');
         return;
     }
     
     try {
-        // Método moderno (recomendado)
         await navigator.clipboard.writeText(codigo);
         mostrarMensaje('reservar', '✅ Código copiado al portapapeles', 'success');
         console.log('📋 Código copiado:', codigo);
     } catch (err) {
         console.warn('⚠️ Falló el método moderno, usando fallback:', err);
         
-        // Fallback para navegadores antiguos
         try {
             const textarea = document.createElement('textarea');
             textarea.value = codigo;
@@ -224,22 +235,5 @@ export async function copiarCodigo() {
     }
 }
 
-// ============================================
-// 8. ASIGNAR FUNCIÓN GLOBAL
-// ============================================
-
-// ✅ Solo una asignación global (NO exportar de nuevo)
+// Asignar al objeto window para uso global
 window.copiarCodigo = copiarCodigo;
-
-// ============================================
-// ❌ ELIMINA ESTO - CAUSA EL ERROR
-// ============================================
-// export {
-//     configurarFechaMinima,
-//     mostrarHoras,
-//     limpiarHoras,
-//     seleccionarHoraUI,
-//     mostrarMensaje,
-//     mostrarCodigo,
-//     copiarCodigo  // <-- ESTO ESTÁ DUPLICADO
-// };
