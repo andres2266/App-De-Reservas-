@@ -4,7 +4,7 @@
  */
 
 // URL del backend (¡REEMPLAZAR CON LA TUYA!)
-export const API_URL = 'https://script.google.com/macros/s/AKfycbySlfU-Ch2YfzZ6VACWzAZjOeMxM_4eH2GTF5fx4HXS2_cp0fXYkX-reg8lsM409y-8/exec';
+export const API_URL = 'https://script.google.com/macros/s/AKfycbwE5o2UR31a7u9T4Tl5OOvjYD6T5LESmMZlwF105T26llktGBg7IGMEv1gnEEjnRnQJ/exec';
 
 // Configuración de horarios
 export const CONFIG = {

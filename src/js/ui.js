@@ -30,9 +30,25 @@ export function configurarFechaMinima() {
 // 2. MOSTRAR HORAS
 // ============================================
 
-export function mostrarHoras(horas, fechaFormateada = null) {
+// ============================================
+// 2. MOSTRAR HORAS (ACTUALIZADO)
+// ============================================
+
+export function mostrarHoras(horas, fechaFormateada = null, bloqueado = false, motivo = '') {
     const container = document.getElementById('horasContainer');
     if (!container) return;
+    
+    // 🔥 VERIFICAR SI EL DÍA ESTÁ BLOQUEADO
+    if (bloqueado) {
+        container.innerHTML = `
+            <div class="no-hours" style="background: #fff3cd; border: 2px solid #ffc107;">
+                <span style="font-size: 48px; display: block; margin-bottom: 12px;">📅</span>
+                <p style="color: #856404; font-weight: 700; font-size: 18px;">${motivo || 'Día no disponible'}</p>
+                <p class="small" style="color: #856404;">Por favor, selecciona otro día</p>
+            </div>
+        `;
+        return;
+    }
     
     if (!horas || horas.length === 0) {
         container.innerHTML = `
