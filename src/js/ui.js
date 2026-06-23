@@ -2,7 +2,6 @@
 // ui.js - Funciones de interfaz de usuario
 // ============================================
 
-// Importar iconos
 import { ICONS_SVG } from './icons.js';
 
 // ============================================
@@ -27,14 +26,68 @@ export function configurarFechaMinima() {
 }
 
 // ============================================
-// 2. MOSTRAR HORAS
+// 2. MOSTRAR SERVICIOS (ACTUALIZADO)
+// ============================================
+
+export function mostrarServicios(servicios) {
+    const container = document.getElementById('serviciosContainer');
+    if (!container) return;
+    
+    if (!servicios || servicios.length === 0) {
+        container.innerHTML = '<p>No hay servicios disponibles</p>';
+        return;
+    }
+    
+    let html = `<div class="servicios-grid">`;
+    
+    servicios.forEach(servicio => {
+        const isSelected = servicio.id === 'corte_degradado' ? 'selected' : '';
+        const duracionTexto = servicio.duracion >= 60 
+            ? `${servicio.duracion/60}h` 
+            : `${servicio.duracion} min`;
+        
+        html += `
+            <button 
+                class="servicio-btn ${isSelected}" 
+                data-servicio-id="${servicio.id}"
+                onclick="window.seleccionarServicio('${servicio.id}')"
+                type="button"
+            >
+                <span class="servicio-emoji">${servicio.emoji}</span>
+                <span class="servicio-nombre">${servicio.nombre}</span>
+                <span class="servicio-duracion">⏱️ ${duracionTexto}</span>
+                <span class="servicio-precio">${servicio.precio}€</span>
+            </button>
+        `;
+    });
+    
+    html += `</div>`;
+    container.innerHTML = html;
+}
+
+// ============================================
+// 3. SELECCIONAR SERVICIO UI
+// ============================================
+
+export function seleccionarServicioUI(servicioId) {
+    document.querySelectorAll('.servicio-btn').forEach(el => {
+        el.classList.remove('selected');
+    });
+    
+    const servicioElement = document.querySelector(`.servicio-btn[data-servicio-id="${servicioId}"]`);
+    if (servicioElement) {
+        servicioElement.classList.add('selected');
+    }
+}
+
+// ============================================
+// 4. MOSTRAR HORAS
 // ============================================
 
 export function mostrarHoras(data) {
     const container = document.getElementById('horasContainer');
     if (!container) return;
     
-    // Si no hay datos o está bloqueado
     if (!data || data.bloqueado) {
         container.innerHTML = `
             <div class="no-hours" style="background: #fff3cd; border: 2px solid #ffc107; border-radius: 12px; padding: 30px;">
@@ -49,24 +102,32 @@ export function mostrarHoras(data) {
     const horas = data.available || [];
     const fechaFormateada = data.dateFormatted || data.date;
     const horarioTexto = data.horario?.texto || '';
+    const servicioNombre = data.servicio?.nombre || '';
+    const duracion = data.servicio?.duracion || 30;
+    const duracionTexto = duracion >= 60 ? `${duracion/60}h` : `${duracion} min`;
     
-    // Si no hay horas disponibles
     if (horas.length === 0) {
         container.innerHTML = `
             <div class="no-hours">
                 <span class="icon-svg" style="width:48px;height:48px;margin:0 auto 12px;display:block;opacity:0.5">
                     ${ICONS_SVG.clock || ''}
                 </span>
-                <p>No hay horas disponibles</p>
+                <p>No hay horas disponibles para ${servicioNombre}</p>
+                <p class="small">Duración del servicio: ${duracionTexto}</p>
                 ${horarioTexto ? `<p class="small">Horario: ${horarioTexto}</p>` : ''}
-                <p class="small">Intenta con otra fecha</p>
+                <p class="small">Intenta con otra fecha u otro servicio</p>
             </div>
         `;
         return;
     }
     
-    // Construir grid de horas
-    let html = `<div class="horas-grid">`;
+    let html = `
+        <div class="info-servicio">
+            <span>✂️ Servicio: <strong>${servicioNombre}</strong></span>
+            <span>⏱️ Duración: <strong>${duracionTexto}</strong></span>
+        </div>
+        <div class="horas-grid">
+    `;
     
     horas.forEach(hora => {
         const horaDisplay = hora.hora || hora.display || hora;
@@ -84,7 +145,6 @@ export function mostrarHoras(data) {
     
     html += `</div>`;
     
-    // Información de la fecha
     if (fechaFormateada) {
         html += `
             <div class="fecha-info">
@@ -94,7 +154,6 @@ export function mostrarHoras(data) {
         `;
     }
     
-    // Mostrar horario del día (desde el backend)
     if (horarioTexto) {
         html += `
             <div class="horario-info">
@@ -105,31 +164,6 @@ export function mostrarHoras(data) {
     }
     
     container.innerHTML = html;
-}
-
-// ============================================
-// 3. LIMPIAR HORAS
-// ============================================
-
-export function limpiarHoras() {
-    document.querySelectorAll('.hora-btn').forEach(el => {
-        el.classList.remove('seleccionada');
-    });
-}
-
-// ============================================
-// 4. SELECCIONAR HORA UI
-// ============================================
-
-export function seleccionarHoraUI(hora) {
-    document.querySelectorAll('.hora-btn').forEach(el => {
-        el.classList.remove('seleccionada');
-    });
-    
-    const horaElement = document.querySelector(`.hora-btn[data-hora="${hora}"]`);
-    if (horaElement) {
-        horaElement.classList.add('seleccionada');
-    }
 }
 
 // ============================================
@@ -174,7 +208,32 @@ export function mostrarMensaje(tipo, mensaje, clase = 'info') {
 }
 
 // ============================================
-// 6. MOSTRAR CÓDIGO
+// 6. LIMPIAR HORAS
+// ============================================
+
+export function limpiarHoras() {
+    document.querySelectorAll('.hora-btn').forEach(el => {
+        el.classList.remove('seleccionada');
+    });
+}
+
+// ============================================
+// 7. SELECCIONAR HORA UI
+// ============================================
+
+export function seleccionarHoraUI(hora) {
+    document.querySelectorAll('.hora-btn').forEach(el => {
+        el.classList.remove('seleccionada');
+    });
+    
+    const horaElement = document.querySelector(`.hora-btn[data-hora="${hora}"]`);
+    if (horaElement) {
+        horaElement.classList.add('seleccionada');
+    }
+}
+
+// ============================================
+// 8. MOSTRAR CÓDIGO
 // ============================================
 
 export function mostrarCodigo(codigo) {
@@ -191,7 +250,7 @@ export function mostrarCodigo(codigo) {
 }
 
 // ============================================
-// 7. COPIAR CÓDIGO
+// 9. COPIAR CÓDIGO
 // ============================================
 
 export async function copiarCodigo() {
@@ -235,5 +294,4 @@ export async function copiarCodigo() {
     }
 }
 
-// Asignar al objeto window para uso global
 window.copiarCodigo = copiarCodigo;

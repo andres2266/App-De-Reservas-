@@ -1,27 +1,33 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>✂️ Barbería - Reserva tu cita</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,700;14..32,800&display=swap"
+        rel="stylesheet" />
     <link rel="stylesheet" href="./src/style/style.css" />
 </head>
+
 <body>
     <div class="container">
         <h1>✂️ Reserva tu cita</h1>
-        <p class="subtitle">Elige el día y la hora que prefieras</p>
+        <p class="subtitle">Elige el servicio, día y hora que prefieras</p>
 
-        <!-- Tabs con IDs correctos -->
+        <!-- Tabs -->
         <div class="tabs">
-            <button class="tab active" id="tabReservarBtn" onclick="window.showTab('reservar')">
-                <span class="icon-svg" id="iconTabReservar" style="width:18px;height:18px;display:inline-block;vertical-align:middle;"></span>
+            <button class="tab active" id="tabReservarBtn">
+                <span class="icon-svg" id="iconTabReservar"
+                    style="width:18px;height:18px;display:inline-block;vertical-align:middle;"></span>
                 Reservar
             </button>
-            <button class="tab" id="tabCancelarBtn" onclick="window.showTab('cancelar')">
-                <span class="icon-svg" id="iconTabCancelar" style="width:18px;height:18px;display:inline-block;vertical-align:middle;"></span>
+            <button class="tab" id="tabCancelarBtn">
+                <span class="icon-svg" id="iconTabCancelar"
+                    style="width:18px;height:18px;display:inline-block;vertical-align:middle;"></span>
                 Cancelar
             </button>
         </div>
@@ -29,37 +35,70 @@
         <!-- TAB 1: RESERVAR -->
         <div id="tab-reservar" class="tab-content active">
             <form id="formReservar">
+                <!-- SERVICIOS -->
+                <label>
+                    <span class="icon-svg" id="iconServicios"
+                        style="width:18px;height:18px;display:inline-block;vertical-align:middle;"></span>
+                    Selecciona el servicio
+                </label>
+                <div id="serviciosContainer" class="servicios-container">
+                    <div class="loading-spinner">⏳ Cargando servicios...</div>
+                </div>
+
+                <!-- FECHA -->
                 <label for="fechaInput">
-                    <span class="icon-svg" id="iconLabelFecha" style="width:18px;height:18px;display:inline-block;vertical-align:middle;"></span>
+                    <span class="icon-svg" id="iconLabelFecha"
+                        style="width:18px;height:18px;display:inline-block;vertical-align:middle;"></span>
                     Selecciona el día
                 </label>
                 <input type="date" id="fechaInput" required />
 
+                <!-- HORAS -->
                 <label>
-                    <span class="icon-svg" id="iconLabelHoras" style="width:18px;height:18px;display:inline-block;vertical-align:middle;"></span>
+                    <span class="icon-svg" id="iconLabelHoras"
+                        style="width:18px;height:18px;display:inline-block;vertical-align:middle;"></span>
                     Horas disponibles
                 </label>
                 <div id="horasContainer" class="horas-container">
                     <div class="loading-spinner">⏳ Cargando horas disponibles...</div>
                 </div>
 
+                <!-- NOMBRE DEL CLIENTE -->
+                <div id="nombreContainer" style="display:none; margin-top: 15px;">
+                    <label for="nombreCliente">
+                        <span class="icon-svg"
+                            style="width:18px;height:18px;display:inline-block;vertical-align:middle;">
+                            <svg viewBox="0 0 24 24">
+                                <circle cx="12" cy="8" r="5" fill="none" stroke="currentColor" stroke-width="2" />
+                                <path d="M4 22C4 16 8 14 12 14C16 14 20 16 20 22" fill="none" stroke="currentColor"
+                                    stroke-width="2" />
+                            </svg>
+                        </span>
+                        Tu nombre
+                    </label>
+                    <input type="text" id="nombreCliente" placeholder="Ej: Juan Pérez" required />
+                </div>
+
                 <button type="submit" class="btn-reservar" id="btnReservar" disabled>
-                    <span class="icon-svg" id="iconBtnReservar" style="width:20px;height:20px;display:inline-block;vertical-align:middle;"></span>
+                    <span class="icon-svg" id="iconBtnReservar"
+                        style="width:20px;height:20px;display:inline-block;vertical-align:middle;"></span>
                     Reservar cita
                 </button>
             </form>
 
             <div id="mensajeReservar" class="mensaje"></div>
-            
+
             <div id="areaCodigo" style="display:none; margin-top:15px;">
                 <div class="divider"></div>
                 <p style="text-align:center; color:#4a3a5e; font-weight:600; font-size:14px;">
-                    <span class="icon-svg" id="iconCodigo" style="width:18px;height:18px;display:inline-block;vertical-align:middle;"></span>
+                    <span class="icon-svg" id="iconCodigo"
+                        style="width:18px;height:18px;display:inline-block;vertical-align:middle;"></span>
                     Guarda este código para cancelar tu cita
                 </p>
                 <div class="codigo-display" id="codigoGenerado">XXXXXX</div>
                 <button class="btn-copiar" id="btnCopiarCodigo">
-                    <span class="icon-svg" id="iconCopiar" style="width:18px;height:18px;display:inline-block;vertical-align:middle;"></span>
+                    <span class="icon-svg" id="iconCopiar"
+                        style="width:18px;height:18px;display:inline-block;vertical-align:middle;"></span>
                     Copiar código
                 </button>
             </div>
@@ -68,19 +107,22 @@
         <!-- TAB 2: CANCELAR -->
         <div id="tab-cancelar" class="tab-content">
             <p class="info-text">
-                <span class="icon-svg" id="iconInfo" style="width:20px;height:20px;display:inline-block;vertical-align:middle;"></span>
+                <span class="icon-svg" id="iconInfo"
+                    style="width:20px;height:20px;display:inline-block;vertical-align:middle;"></span>
                 Introduce el código que recibiste al reservar para cancelar tu cita.
             </p>
 
             <form id="formCancelar">
                 <label for="codigoInput">
-                    <span class="icon-svg" id="iconLabelCodigo" style="width:18px;height:18px;display:inline-block;vertical-align:middle;"></span>
+                    <span class="icon-svg" id="iconLabelCodigo"
+                        style="width:18px;height:18px;display:inline-block;vertical-align:middle;"></span>
                     Código de confirmación
                 </label>
                 <input type="text" id="codigoInput" placeholder="Ej: 482719" maxlength="6" />
 
                 <button type="submit" class="btn-danger" id="btnCancelar">
-                    <span class="icon-svg" id="iconBtnCancelar" style="width:20px;height:20px;display:inline-block;vertical-align:middle;"></span>
+                    <span class="icon-svg" id="iconBtnCancelar"
+                        style="width:20px;height:20px;display:inline-block;vertical-align:middle;"></span>
                     Cancelar cita
                 </button>
             </form>
@@ -89,43 +131,29 @@
         </div>
     </div>
 
-    <!-- ===== SCRIPTS ===== -->
-    <!-- 1. Iconos -->
+    <!-- SCRIPTS -->
     <script type="module">
         import { ICONS_SVG } from './src/js/icons.js';
-        
-        console.log('🎨 Cargando iconos...');
-        
+
         function insertarIconos() {
             try {
-                const iconTabReservar = document.getElementById('iconTabReservar');
-                const iconTabCancelar = document.getElementById('iconTabCancelar');
-                const iconLabelFecha = document.getElementById('iconLabelFecha');
-                const iconLabelHoras = document.getElementById('iconLabelHoras');
-                const iconBtnReservar = document.getElementById('iconBtnReservar');
-                const iconBtnCancelar = document.getElementById('iconBtnCancelar');
-                const iconCodigo = document.getElementById('iconCodigo');
-                const iconCopiar = document.getElementById('iconCopiar');
-                const iconInfo = document.getElementById('iconInfo');
-                const iconLabelCodigo = document.getElementById('iconLabelCodigo');
-                
-                if (iconTabReservar) iconTabReservar.innerHTML = ICONS_SVG.calendar || '';
-                if (iconTabCancelar) iconTabCancelar.innerHTML = ICONS_SVG.cancel || '';
-                if (iconLabelFecha) iconLabelFecha.innerHTML = ICONS_SVG.calendar || '';
-                if (iconLabelHoras) iconLabelHoras.innerHTML = ICONS_SVG.clock || '';
-                if (iconBtnReservar) iconBtnReservar.innerHTML = ICONS_SVG.check || '';
-                if (iconBtnCancelar) iconBtnCancelar.innerHTML = ICONS_SVG.cancel || '';
-                if (iconCodigo) iconCodigo.innerHTML = ICONS_SVG.scissors || '';
-                if (iconCopiar) iconCopiar.innerHTML = ICONS_SVG.check || '';
-                if (iconInfo) iconInfo.innerHTML = ICONS_SVG.user || '';
-                if (iconLabelCodigo) iconLabelCodigo.innerHTML = ICONS_SVG.scissors || '';
-                
+                document.getElementById('iconTabReservar').innerHTML = ICONS_SVG.calendar || '';
+                document.getElementById('iconTabCancelar').innerHTML = ICONS_SVG.cancel || '';
+                document.getElementById('iconServicios').innerHTML = ICONS_SVG.scissors || '';
+                document.getElementById('iconLabelFecha').innerHTML = ICONS_SVG.calendar || '';
+                document.getElementById('iconLabelHoras').innerHTML = ICONS_SVG.clock || '';
+                document.getElementById('iconBtnReservar').innerHTML = ICONS_SVG.check || '';
+                document.getElementById('iconBtnCancelar').innerHTML = ICONS_SVG.cancel || '';
+                document.getElementById('iconCodigo').innerHTML = ICONS_SVG.scissors || '';
+                document.getElementById('iconCopiar').innerHTML = ICONS_SVG.check || '';
+                document.getElementById('iconInfo').innerHTML = ICONS_SVG.user || '';
+                document.getElementById('iconLabelCodigo').innerHTML = ICONS_SVG.scissors || '';
                 console.log('✅ Iconos insertados correctamente');
             } catch (error) {
                 console.error('❌ Error insertando iconos:', error);
             }
         }
-        
+
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', insertarIconos);
         } else {
@@ -133,9 +161,9 @@
         }
     </script>
 
-    <!-- 2. Módulos principales -->
     <script type="module" src="./src/api/fetchInstance.js"></script>
     <script type="module" src="./src/js/ui.js"></script>
     <script type="module" src="./src/js/app.js"></script>
 </body>
+
 </html>

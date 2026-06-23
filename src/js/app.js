@@ -1,8 +1,9 @@
 // ============================================
-// app.js - Lógica principal
+// app.js - Lógica principal (VERSIÓN CORREGIDA)
 // ============================================
 
 import { 
+    obtenerServicios,
     obtenerHorasDisponiblesHoy, 
     obtenerHorasDisponibles,
     crearCita,
@@ -10,6 +11,8 @@ import {
 } from '../api/fetchInstance.js';
 
 import { 
+    mostrarServicios,
+    seleccionarServicioUI,
     mostrarHoras, 
     limpiarHoras, 
     mostrarMensaje, 
@@ -25,22 +28,74 @@ import { ICONS_SVG } from './icons.js';
 let horaSeleccionada = null;
 let fechaSeleccionada = null;
 let fechaFormateada = null;
+let servicioSeleccionado = 'corte_degradado';
+let serviciosList = [];
 
 // ============================================
-// 1. CARGAR HORAS DISPONIBLES HOY
+// 1. CARGAR SERVICIOS
 // ============================================
 
-export async function cargarHorasDisponiblesHoy() {
+export async function cargarServicios() {
+    console.log('🔄 Cargando servicios...');
+    
+    try {
+        const response = await obtenerServicios();
+        console.log('📥 Respuesta servicios:', response);
+        
+        if (response.success && response.data?.servicios) {
+            serviciosList = response.data.servicios;
+            mostrarServicios(serviciosList);
+            console.log('✅ Servicios cargados correctamente');
+        } else {
+            console.error('❌ Error cargando servicios');
+        }
+    } catch (error) {
+        console.error('❌ Error:', error);
+    }
+}
+
+// ============================================
+// 2. SELECCIONAR SERVICIO (GLOBAL)
+// ============================================
+
+window.seleccionarServicio = function(servicioId) {
+    console.log(`📌 Servicio seleccionado: ${servicioId}`);
+    
+    servicioSeleccionado = servicioId;
+    seleccionarServicioUI(servicioId);
+    
+    // Limpiar selección de hora
+    limpiarHoras();
+    horaSeleccionada = null;
+    document.getElementById('btnReservar').disabled = true;
+    document.getElementById('nombreContainer').style.display = 'none';
+    
+    // Recargar horas con el nuevo servicio
+    const fechaInput = document.getElementById('fechaInput');
+    if (fechaInput && fechaInput.value) {
+        cargarHorasPorFecha(fechaInput.value, servicioId);
+    } else {
+        cargarHorasDisponiblesHoy(servicioId);
+    }
+};
+
+// ============================================
+// 3. CARGAR HORAS DISPONIBLES HOY
+// ============================================
+
+export async function cargarHorasDisponiblesHoy(servicio = null) {
     console.log('🔄 Cargando horas disponibles para hoy...');
     
     const container = document.getElementById('horasContainer');
     if (!container) return;
     
+    const servicioId = servicio || servicioSeleccionado;
+    
     try {
         container.innerHTML = '<div class="loading-spinner">⏳ Cargando horas disponibles...</div>';
         
-        const response = await obtenerHorasDisponiblesHoy();
-        console.log('📥 Respuesta completa:', response);
+        const response = await obtenerHorasDisponiblesHoy(servicioId);
+        console.log(`📥 Respuesta completa para servicio ${servicioId}:`, response);
         
         if (response.success && response.data) {
             const data = response.data;
@@ -53,11 +108,11 @@ export async function cargarHorasDisponiblesHoy() {
             fechaSeleccionada = data.date;
             fechaFormateada = data.dateFormatted || null;
             
-            // Pasar TODO el data a mostrarHoras
             mostrarHoras(data);
             
             horaSeleccionada = null;
             document.getElementById('btnReservar').disabled = true;
+            document.getElementById('nombreContainer').style.display = 'none';
             
             if (data.bloqueado) {
                 mostrarMensaje('reservar', `📅 ${data.motivo || 'Día cerrado'}`, 'warning');
@@ -92,16 +147,18 @@ export async function cargarHorasDisponiblesHoy() {
 }
 
 // ============================================
-// 2. CARGAR HORAS POR FECHA
+// 4. CARGAR HORAS POR FECHA
 // ============================================
 
-async function cargarHorasPorFecha(fecha) {
+async function cargarHorasPorFecha(fecha, servicio = null) {
     const container = document.getElementById('horasContainer');
     container.innerHTML = '<div class="loading-spinner">⏳ Cargando horas...</div>';
     
+    const servicioId = servicio || servicioSeleccionado;
+    
     try {
-        const response = await obtenerHorasDisponibles(fecha);
-        console.log(`📥 Horas para ${fecha}:`, response);
+        const response = await obtenerHorasDisponibles(fecha, servicioId);
+        console.log(`📥 Horas para ${fecha} con servicio ${servicioId}:`, response);
         
         if (response.success && response.data) {
             const data = response.data;
@@ -109,11 +166,11 @@ async function cargarHorasPorFecha(fecha) {
             fechaSeleccionada = fecha;
             fechaFormateada = data.dateFormatted || null;
             
-            // Pasar TODO el data a mostrarHoras
             mostrarHoras(data);
             
             horaSeleccionada = null;
             document.getElementById('btnReservar').disabled = true;
+            document.getElementById('nombreContainer').style.display = 'none';
             
             if (data.bloqueado) {
                 mostrarMensaje('reservar', `📅 ${data.motivo || 'Día cerrado'}`, 'warning');
@@ -143,7 +200,7 @@ async function cargarHorasPorFecha(fecha) {
 }
 
 // ============================================
-// 3. SELECCIONAR HORA (GLOBAL)
+// 5. SELECCIONAR HORA (GLOBAL)
 // ============================================
 
 window.seleccionarHora = function(hora) {
@@ -151,6 +208,8 @@ window.seleccionarHora = function(hora) {
     
     seleccionarHoraUI(hora);
     horaSeleccionada = hora;
+    
+    document.getElementById('nombreContainer').style.display = 'block';
     
     const btnReservar = document.getElementById('btnReservar');
     if (btnReservar) {
@@ -165,7 +224,7 @@ window.seleccionarHora = function(hora) {
 };
 
 // ============================================
-// 4. CAMBIAR FECHA
+// 6. CAMBIAR FECHA
 // ============================================
 
 export function onFechaChange() {
@@ -174,6 +233,7 @@ export function onFechaChange() {
     
     limpiarHoras();
     horaSeleccionada = null;
+    document.getElementById('nombreContainer').style.display = 'none';
     
     const btnReservar = document.getElementById('btnReservar');
     if (btnReservar) {
@@ -184,15 +244,24 @@ export function onFechaChange() {
         `;
     }
     
-    cargarHorasPorFecha(fecha);
+    cargarHorasPorFecha(fecha, servicioSeleccionado);
 }
 
 // ============================================
-// 5. RESERVAR CITA
+// 7. RESERVAR CITA
 // ============================================
 
 export async function handleReservar(event) {
     event.preventDefault();
+    
+    const nombreInput = document.getElementById('nombreCliente');
+    const nombreCliente = nombreInput?.value?.trim() || '';
+    
+    if (!nombreCliente) {
+        mostrarMensaje('reservar', '⚠️ Por favor, ingresa tu nombre', 'warning');
+        nombreInput?.focus();
+        return;
+    }
     
     if (!horaSeleccionada || !fechaSeleccionada) {
         mostrarMensaje('reservar', '⚠️ Por favor, selecciona una hora', 'warning');
@@ -207,17 +276,24 @@ export async function handleReservar(event) {
     `;
     
     try {
+        const servicio = serviciosList.find(s => s.id === servicioSeleccionado);
+        const duracion = servicio?.duracion || 40;
+        
         const startTime = new Date(`${fechaSeleccionada}T${horaSeleccionada}:00`);
-        const endTime = new Date(startTime.getTime() + 60 * 60000);
+        const endTime = new Date(startTime.getTime() + duracion * 60000);
         
         console.log('📌 Creando cita:', {
             start: startTime.toISOString(),
-            end: endTime.toISOString()
+            end: endTime.toISOString(),
+            servicio: servicioSeleccionado,
+            cliente: nombreCliente
         });
         
         const response = await crearCita({
             start_time: startTime.toISOString(),
             end_time: endTime.toISOString(),
+            servicio: servicioSeleccionado,
+            nombre_cliente: nombreCliente,
             location: 'Peluquería'
         });
         
@@ -229,7 +305,10 @@ export async function handleReservar(event) {
             
             horaSeleccionada = null;
             limpiarHoras();
-            await cargarHorasDisponiblesHoy();
+            nombreInput.value = '';
+            document.getElementById('nombreContainer').style.display = 'none';
+            
+            await cargarHorasDisponiblesHoy(servicioSeleccionado);
         } else {
             mostrarMensaje('reservar', response.message || '❌ Error al reservar', 'error');
         }
@@ -252,7 +331,7 @@ export async function handleReservar(event) {
 }
 
 // ============================================
-// 6. CANCELAR CITA
+// 8. CANCELAR CITA
 // ============================================
 
 export async function handleCancelar(event) {
@@ -284,7 +363,7 @@ export async function handleCancelar(event) {
         if (response.success) {
             mostrarMensaje('cancelar', response.message, 'success');
             codigoInput.value = '';
-            await cargarHorasDisponiblesHoy();
+            await cargarHorasDisponiblesHoy(servicioSeleccionado);
         } else {
             mostrarMensaje('cancelar', response.message || '❌ Error al cancelar', 'error');
         }
@@ -301,7 +380,7 @@ export async function handleCancelar(event) {
 }
 
 // ============================================
-// 7. CAMBIAR TAB (GLOBAL)
+// 9. CAMBIAR TAB (GLOBAL)
 // ============================================
 
 window.showTab = function(tab) {
@@ -328,7 +407,7 @@ window.showTab = function(tab) {
 };
 
 // ============================================
-// 8. CONFIGURAR TABS
+// 10. CONFIGURAR TABS
 // ============================================
 
 export function setupTabs() {
@@ -355,14 +434,17 @@ export function setupTabs() {
 }
 
 // ============================================
-// 9. INICIALIZAR
+// 11. INICIALIZAR
 // ============================================
 
 export function init() {
     console.log('🚀 Inicializando aplicación...');
     
     configurarFechaMinima();
-    cargarHorasDisponiblesHoy();
+    
+    cargarServicios().then(() => {
+        cargarHorasDisponiblesHoy(servicioSeleccionado);
+    });
     
     const fechaInput = document.getElementById('fechaInput');
     if (fechaInput) {
@@ -384,6 +466,7 @@ export function init() {
     window.copiarCodigo = copiarCodigo;
     window.seleccionarHora = window.seleccionarHora;
     window.showTab = window.showTab;
+    window.seleccionarServicio = window.seleccionarServicio;
     
     const btnCopiar = document.getElementById('btnCopiarCodigo');
     if (btnCopiar) {
